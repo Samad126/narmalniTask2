@@ -136,11 +136,70 @@
             word-break: break-word;
             white-space: pre-wrap;
         }
+
+        .underline{
+            text-decoration: underline;
+        }
+
+        dialog{border: none;}
+
+        dialog::backdrop{
+            background-color: rgba(0,0,0, .75);
+        }
+
+        dialog > div{
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        dialog > div > button{
+            border: none;
+            background-color: transparent;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        dialog > div > button, #dialogControllers{
+            align-self: end;
+        }
+
+        dialog > div > div:first-of-type{
+            text-align: center;
+        }
+
+        #dialogControllers > button{
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            color: white;
+        }
+
+        #dialogControllers > button:first-of-type{
+            background-color: green;
+        }
+
+        #dialogControllers > button:last-of-type{
+            background-color: red;
+        }
     </style>
 </head>
 
 <body>
-    <dialog></dialog>
+    <dialog>
+        <div>
+            <button onclick="dialogHandler()">x</button>
+            <div>
+                <h2>Hmmm!</h2>
+                <p>Please stop playing around and start typing!</p>
+            </div>
+            <div id="dialogControllers">
+                <button onclick="reset('hardReset')">Run again</button>
+                <button onclick="dialogHandler()">Close</button>
+            </div>
+        </div>
+    </dialog>
     <main>
         <div class="infos">
             <div>
@@ -306,11 +365,12 @@
         const currentTime = document.getElementById("currentTime");
         const cpm = document.getElementById("cpm");
         const wpm = document.getElementById("wpm");
-        const controllers = document.getElementById("controllers")
+        const controllers = document.getElementById("controllers");
+        const dialog = document.querySelector("dialog");
 
         let timeSpent = 0, time, timer;
         let isStarted = false, isFinished = false;
-        let currentQuote = "";
+        let currentQuote = "", finalQuote = "";
         let resultPreview = "", writtenByUser = "";
         let errorCount = 0, totalCount = 0, correctCharCount = 0;
 
@@ -326,7 +386,7 @@
             let writtenCount = calcWords(writtenByUser);
             writtenWords.innerHTML = writtenCount;
             errors.innerHTML = errorCount;
-            accuracy.innerHTML = writtenByUser ? Math.round((correctCharCount / writtenByUser.length) * 100) : 0;
+            accuracy.innerHTML = writtenByUser ? Math.round((correctCharCount / writtenByUser.length) * 100) : 0 + "%";
         }
 
         function updateRightBars() {
@@ -394,13 +454,15 @@
                 resultPreview = "";
                 time = 0;
                 timeSpent = 0;
-                sentence.innerHTML = "";
                 resultSentence.innerHTML = "";
+                sentence.innerHTML = "";
                 sentence.classList.remove("show");
             }
             else {
                 isFinished = true;
                 sentence.classList.toggle("show");
+                sentence.innerHTML = finalQuote;
+                dialogHandler("on");
             }
 
             updateUi();
@@ -409,7 +471,7 @@
         function gameHandler(type) {
             if (type == "start") {
                 if (!isStarted) {
-                    time = 60000;
+                    time = +prompt("Zaman daxil edin", 60000);
                     generateSentence();
                     isStarted = true;
                     onkeypress = typeLetter;
@@ -429,18 +491,18 @@
             }
             else {
                 reset("hardReset");
-
             }
         }
 
         function typeLetter(e) {
-            console.log(currentQuote[0], e.key);
-            let isCorrect = currentQuote[0] == e.key;
+            let updatedTxt = sentence.innerText;
+            let isCorrect = updatedTxt[0] == e.key;
 
             if (isCorrect) {
                 resultPreview += e.key;
                 correctCharCount++;
-                currentQuote = currentQuote.slice(1);
+                updatedTxt = updatedTxt.slice(1);
+                currentQuote = `<span class="underline">${updatedTxt[0]}</span>` + updatedTxt.slice(1);
                 if (currentQuote.length == 0) {
                     generateSentence();
                     resultPreview += " ";
@@ -461,9 +523,16 @@
             let rndCount = rnd(5, data.length - 1);
             for (let i = 0; i < rndCount; i++) {
                 currentQuote = currentQuote + data[rnd(0, data.length - 1)].quote + (i != (rndCount - 1) ? " " : "");
+                finalQuote = currentQuote;
             }
+            currentQuote = `<span class="underline">${currentQuote[0]}</span>` + currentQuote.slice(1);
             sentence.innerHTML = currentQuote;
             totalCount = calcWords(currentQuote) + 1;
+        }
+
+        function dialogHandler(type){
+            if (type == "on") dialog.showModal();
+            else dialog.close();
         }
 
         function rnd(min, max) {
