@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Narmalni Task</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        h2,
+        h6,
+        h4 {
+            font-weight: 100;
+        }
+
+        main {
+            display: flex;
+            justify-content: space-between;
+            margin: auto;
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        main>div:nth-child(2) {
+            width: 70%;
+        }
+
+        #controllers {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        #controllers button {
+            background: white;
+            display: flex;
+            border: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        #controllers .icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            border: 1px solid black;
+            width: 40px;
+            height: 40px;
+            margin: auto;
+        }
+
+        .active {
+            border-color: red !important;
+            color: red;
+        }
+
+        .errorLetter {
+            color: red;
+        }
+
+        #blackBg {
+            background-color: black;
+            height: 20px;
+        }
+
+        #sentence {
+            text-align: initial;
+            background-color: rgb(78, 78, 78);
+            color: white;
+            padding: 10px;
+            margin: 0;
+            letter-spacing: 5px;
+            font-size: 1.3em;
+            overflow: hidden;
+        }
+
+        #resultSentence {
+            color: white;
+            background-color: black;
+            width: 60%;
+            padding: 10px;
+            min-height: 80px;
+            margin: 20px auto;
+            font-size: 1em;
+            text-align: initial;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #avgSpeed>h2 {
+            text-align: left;
+        }
+
+        #avgSpeed>div {
+            display: flex;
+            justify-content: stretch;
+        }
+
+        #avgSpeed p {
+            width: 20%;
+            color: white;
+            padding: 10px;
+        }
+
+        #avgSpeed p:nth-child(1) {
+            background-color: red;
+        }
+
+        #avgSpeed p:nth-child(2) {
+            background-color: orange;
+        }
+
+        #avgSpeed p:nth-child(3) {
+            background-color: rgb(219, 219, 0);
+        }
+
+        #avgSpeed p:nth-child(4) {
+            background-color: greenyellow;
+        }
+
+        #avgSpeed p:nth-child(5) {
+            background-color: green;
+        }
+
+        .show {
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <dialog></dialog>
+    <main>
+        <div class="infos">
+            <div>
+                <h4>Total Words</h4>
+                <h2 id="totalWords">0</h2>
+            </div>
+            <div>
+                <h4>Written Words</h4>
+                <h2 id="writtenWords">0</h2>
+            </div>
+            <div>
+                <h4>Errors</h4>
+                <h2 id="errors">0</h2>
+            </div>
+            <div>
+                <h4>Accuracy</h4>
+                <h2 id="accuracy">0</h2>
+            </div>
+        </div>
+        <div>
+            <div>
+                <p>How fast is your typing</p>
+                <p>Click on start button to start the one-minute typing test and find out</p>
+                <div id="controllers">
+                    <button onclick="gameHandler('start')" class="controller"><span class="icon">▷</span>
+                        Start</button>
+                    <button onclick="gameHandler('Reset')" class="controller"><span class="icon">🗘</span>
+                        Reset</button>
+                </div>
+            </div>
+            <hr />
+            <div>
+                <div>
+                    <div id="blackBg"></div>
+                    <pre id="sentence"></pre>
+                </div>
+                <pre id="resultSentence"></pre>
+            </div>
+            <hr />
+            <div id="avgSpeed">
+                <h2>Average Typing Speed</h2>
+                <div>
+                    <p>0-20 slow</p>
+                    <p>20-40 average</p>
+                    <p>40-60 fast</p>
+                    <p>60-80 professional</p>
+                    <p>80-100 master</p>
+                </div>
+            </div>
+        </div>
+        <div class="infos">
+            <div>
+                <h4>Time</h4>
+                <h2 id="currentTime">0</h2>
+            </div>
+            <div>
+                <h4>CPM</h4>
+                <h2 id="cpm">0</h2>
+            </div>
+            <div>
+                <h4>WPM</h4>
+                <h2 id="wpm">0</h2>
+            </div>
+        </div>
+    </main>
+    <script>
+        const data = [
+            {
+                "quote": "Be yourself; everyone else is already taken.",
+                "author": "Oscar Wilde",
+            },
+            {
+                "quote": "To live is the rarest thing in the world. Most people exist, that is all.",
+                "author": "Oscar Wilde",
+            },
+            {
+                "quote": "True friends stab you in the front.",
+                "author": "Oscar Wilde",
+            },
+            {
+                "quote": "Women are made to be Loved, not understood.",
+                "author": "Oscar Wilde",
+            },
+            {
+                "quote": "Be the change that you wish to see in the world.",
+                "author": "Mahatma Gandhi",
+            },
+            {
+                "quote": "Live as if you were to die tomorrow. Learn as if you were to live forever.",
+                "author": "Mahatma Gandhi",
+            },
+            {
+                "quote": "No one can make you feel inferior without your consent.",
+                "author": "Eleanor Roosevelt",
+            },
+            {
+                "quote": "Great minds discuss ideas; average minds discuss events; small minds discuss people.",
+                "author": "Eleanor Roosevelt",
+            },
+            {
+                "quote": "Do what you feel in your heart to be right - for you'll be criticized anyway.",
+                "author": "Eleanor Roosevelt",
+            },
+            {
+                "quote": "Do one thing every day that scares you.",
+                "author": "Eleanor Roosevelt",
+            },
+            {
+                "quote": "Darkness cannot drive out darkness: only light can do that. Hate cannot drive out hate; only love can do that.",
+                "author": "Martin Luther King",
+            },
+            {
+                "quote": "Our lives begin to end the day we become silent about things that matter.",
+                "author": "Martin Luther King",
+            },
+            {
+                "quote": "In the end, we will remember not the words of our enemies, but the silence of our friends.",
+                "author": "Martin Luther King",
+            },
+            {
+                "quote": "Injustice anywhere is a threat to justice everywhere.",
+                "author": "Martin Luther King",
+            },
+            {
+                "quote": "The time is always right to do what is right.",
+                "author": "Martin Luther King",
+            },
+            {
+                "quote": "Life's most persistent and urgent question is, 'What are you doing for others?",
+                "author": "Martin Luther King",
+            },
+            {
+                "quote": "Weak people revenge. Strong people forgive. Intelligent People Ignore.",
+                "author": "Albert Einstein",
+            },
+            {
+                "quote": "I have not failed. I've just found 10,000 ways that won't work.",
+                "author": "Thomas A. Edison",
+            },
+            {
+                "quote": "Genius is one percent inspiration and ninety-nine percent perspiration.",
+                "author": "Thomas A. Edison",
+            },
+            {
+                "quote": "Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.",
+                "author": "Thomas A. Edison",
+            },
+            {
+                "quote": "If we did all the things we are capable of, we would literally astound ourselves.",
+                "author": "Thomas A. Edison",
+            },
+            {
+                "quote": "Imagination is more important than knowledge. Knowledge is limited. Imagination encircles the world.",
+                "author": "Albert Einstein",
+            }]
+
+        const totalWords = document.getElementById("totalWords");
+        const writtenWords = document.getElementById("writtenWords");
+        const errors = document.getElementById("errors");
+        const accuracy = document.getElementById("accuracy");
+        const sentence = document.getElementById("sentence");
+        const resultSentence = document.getElementById("resultSentence");
+        const currentTime = document.getElementById("currentTime");
+        const cpm = document.getElementById("cpm");
+        const wpm = document.getElementById("wpm");
+        const controllers = document.getElementById("controllers")
+
+        let timeSpent = 0, time, timer;
+        let isStarted = false, isFinished = false;
+        let currentQuote = "";
+        let resultPreview = "", writtenByUser = "";
+        let errorCount = 0, totalCount = 0, correctCharCount = 0;
+
+
+        function updateUi() {
+            updateControllers();
+            updateLeftBars();
+            updateRightBars();
+        }
+
+        function updateLeftBars() {
+            totalWords.innerHTML = totalCount;
+            let writtenCount = calcWords(writtenByUser);
+            writtenWords.innerHTML = writtenCount;
+            errors.innerHTML = errorCount;
+            accuracy.innerHTML = writtenByUser ? Math.round((correctCharCount / writtenByUser.length) * 100) : 0;
+        }
+
+        function updateRightBars() {
+            currentTime.innerHTML = time / 1000;
+
+            let wordCount = calcWords(writtenByUser);
+            wpm.innerHTML = timeSpent > 0 ? Math.round((wordCount / (timeSpent / 60000))) : 0;
+
+            let characterCount = writtenByUser.length;
+            cpm.innerHTML = timeSpent > 0 ? Math.round((characterCount / (timeSpent / 60000))) : 0;
+        }
+
+
+        function updateControllers() {
+            if (isStarted) {
+                if (isFinished) {
+                    controllers.innerHTML =
+                        `
+                    <button onclick="gameHandler('Reset')" class="controller active"><span class="icon">🗘</span>
+                        Reset</button>
+                        `;
+                }
+                else {
+                    controllers.innerHTML =
+                        `
+                        <button onclick="gameHandler('start')" class="controller active"><span class="icon">▷</span>
+                            Start</button>
+                        <button onclick="gameHandler('Reset')" class="controller"><span class="icon">🗘</span>
+                            Reset</button>
+                    `;
+
+                }
+            }
+            else {
+                controllers.innerHTML =
+                    `
+                    <button onclick="gameHandler('start')" class="controller"><span class="icon">▷</span>
+                        Start</button>
+                    <button onclick="gameHandler('Reset')" class="controller"><span class="icon">🗘</span>
+                        Reset</button>
+                `;
+            }
+        }
+
+        function calcWords(sentence) {
+            let count = 0;
+            for (let i = 0; i < sentence.length; i++) {
+                if (sentence[i] == " " && sentence[i + 1] != " ") count++;
+            }
+            return count;
+        }
+
+        function reset(type) {
+            clearInterval(timer);
+            onkeypress = null;
+
+            if (type == "hardReset") {
+                isStarted = false;
+                isFinished = false;
+                currentQuote = "";
+                errorCount = 0;
+                totalCount = 0;
+                correctCharCount = 0;
+                writtenByUser = "";
+                resultPreview = "";
+                time = 0;
+                timeSpent = 0;
+                sentence.innerHTML = "";
+                resultSentence.innerHTML = "";
+                sentence.classList.remove("show");
+            }
+            else {
+                isFinished = true;
+                sentence.classList.toggle("show");
+            }
+
+            updateUi();
+        }
+
+        function gameHandler(type) {
+            if (type == "start") {
+                if (!isStarted) {
+                    time = 60000;
+                    generateSentence();
+                    isStarted = true;
+                    onkeypress = typeLetter;
+
+                    timer = setInterval(() => {
+                        time -= 1000;
+                        timeSpent += 1000;
+                        if (time <= 0) {
+                            clearInterval(timer);
+                            reset();
+                        }
+                        else updateUi();
+                    }, 1000);
+
+                    updateUi();
+                }
+            }
+            else {
+                reset("hardReset");
+
+            }
+        }
+
+        function typeLetter(e) {
+            console.log(currentQuote[0], e.key);
+            let isCorrect = currentQuote[0] == e.key;
+
+            if (isCorrect) {
+                resultPreview += e.key;
+                correctCharCount++;
+                currentQuote = currentQuote.slice(1);
+                if (currentQuote.length == 0) {
+                    generateSentence();
+                    resultPreview += " ";
+                }
+                else sentence.innerHTML = currentQuote;
+            }
+            else {
+                resultPreview += `<span class="errorLetter">${e.key}</span>`;
+                errorCount++;
+            }
+
+            resultSentence.innerHTML = resultPreview;
+            writtenByUser += e.key;
+            updateUi();
+        }
+
+        function generateSentence() {
+            let rndCount = rnd(5, data.length - 1);
+            for (let i = 0; i < rndCount; i++) {
+                currentQuote = currentQuote + data[rnd(0, data.length - 1)].quote + (i != (rndCount - 1) ? " " : "");
+            }
+            sentence.innerHTML = currentQuote;
+            totalCount = calcWords(currentQuote) + 1;
+        }
+
+        function rnd(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+    </script>
+</body>
+
+</html>
