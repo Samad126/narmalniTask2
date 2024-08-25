@@ -137,38 +137,41 @@
             white-space: pre-wrap;
         }
 
-        .underline{
+        .underline {
             text-decoration: underline;
         }
 
-        dialog{border: none;}
-
-        dialog::backdrop{
-            background-color: rgba(0,0,0, .75);
+        dialog {
+            border: none;
         }
 
-        dialog > div{
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, .75);
+        }
+
+        dialog>div {
             display: flex;
             flex-direction: column;
             gap: 40px;
         }
 
-        dialog > div > button{
+        dialog>div>button {
             border: none;
             background-color: transparent;
             font-size: 1em;
             cursor: pointer;
         }
 
-        dialog > div > button, #dialogControllers{
+        dialog>div>button,
+        #dialogControllers {
             align-self: end;
         }
 
-        dialog > div > div:first-of-type{
+        dialog>div>div:first-of-type {
             text-align: center;
         }
 
-        #dialogControllers > button{
+        #dialogControllers>button {
             border: none;
             border-radius: 5px;
             padding: 5px;
@@ -176,11 +179,11 @@
             color: white;
         }
 
-        #dialogControllers > button:first-of-type{
+        #dialogControllers>button:first-of-type {
             background-color: green;
         }
 
-        #dialogControllers > button:last-of-type{
+        #dialogControllers>button:last-of-type {
             background-color: red;
         }
     </style>
@@ -386,11 +389,12 @@
             let writtenCount = calcWords(writtenByUser);
             writtenWords.innerHTML = writtenCount;
             errors.innerHTML = errorCount;
-            accuracy.innerHTML = writtenByUser ? Math.round((correctCharCount / writtenByUser.length) * 100) : 0 + "%";
+            let accResult = writtenByUser ? Math.round((correctCharCount / writtenByUser.length) * 100) : 0;
+            accuracy.innerHTML = accResult + (accResult == 0 ? "" : "%");
         }
 
         function updateRightBars() {
-            currentTime.innerHTML = time / 1000;
+            currentTime.innerHTML = time / 1000 + (isStarted ? "s" : "");
 
             let wordCount = calcWords(writtenByUser);
             wpm.innerHTML = timeSpent > 0 ? Math.round((wordCount / (timeSpent / 60000))) : 0;
@@ -498,7 +502,10 @@
             let updatedTxt = sentence.innerText;
             let isCorrect = updatedTxt[0] == e.key;
 
+            let typAudio = new Audio(`${isCorrect ? "typing.mp3" : "error.mp3"}`);
+            
             if (isCorrect) {
+                typAudio.play();
                 resultPreview += e.key;
                 correctCharCount++;
                 updatedTxt = updatedTxt.slice(1);
@@ -510,6 +517,7 @@
                 else sentence.innerHTML = currentQuote;
             }
             else {
+                typAudio.play();
                 resultPreview += `<span class="errorLetter">${e.key}</span>`;
                 errorCount++;
             }
@@ -530,7 +538,7 @@
             totalCount = calcWords(currentQuote) + 1;
         }
 
-        function dialogHandler(type){
+        function dialogHandler(type) {
             if (type == "on") dialog.showModal();
             else dialog.close();
         }
