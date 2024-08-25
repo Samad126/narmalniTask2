@@ -475,7 +475,7 @@
         function gameHandler(type) {
             if (type == "start") {
                 if (!isStarted) {
-                    time = +prompt("Zaman daxil edin", 60000);
+                    time = +prompt("Zaman daxil edin(saniye)", 60) * 1000;
                     generateSentence();
                     isStarted = true;
                     onkeypress = typeLetter;
